@@ -31,6 +31,7 @@ let data = [];
 let state = store.load();
 let currentTab = 'list';
 let filter = 'all';
+let onlyImportant = false;
 let curFile = null;
 let queue = [];
 let qIdx = 0;
@@ -39,6 +40,8 @@ let queueFile = null;
 const $ = (s) => document.querySelector(s);
 const drillable = (e) => e.kind === 'qa' || e.kind === 'open';
 const dotClass = (lv) => (lv === 0 ? 'dot-gray' : lv === 1 ? 'dot-red' : lv === 2 ? 'dot-yellow' : 'dot-green');
+const sortImportant = (arr) => [...arr.filter((e) => e.important), ...arr.filter((e) => !e.important)];
+const currentDrillable = () => curFile.entries.filter(drillable).filter((e) => !onlyImportant || e.important);
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) =>
@@ -67,7 +70,7 @@ function selectFile(key) {
 
 function renewQueue() {
   if (!curFile) return;
-  queue = curFile.entries.filter(drillable);
+  queue = sortImportant(currentDrillable());
   queueFile = curFile.key;
   const lastId = store.getLastId(state, curFile.key);
   const found = queue.findIndex((e) => e.id === lastId);
@@ -95,11 +98,12 @@ function renderList() {
     .join('');
   const chips = Object.entries(FILTERS)
     .map(([k, label]) => `<button class="chip ${filter === k ? 'on' : ''}" data-filter="${k}">${label}</button>`)
-    .join('');
+    .join('') + `<button class="chip ${onlyImportant ? 'on' : ''}" data-f="important">⭐ 只看重要</button>`;
 
   const groups = {};
   for (const e of curFile.entries) {
     if (!drillable(e)) continue;
+    if (onlyImportant && !e.important) continue;
     const lv = store.getMastery(state, e.id);
     if (!FILTER_KEEP[filter](lv)) continue;
     (groups[e.section] = groups[e.section] || []).push(e);
@@ -110,7 +114,8 @@ function renderList() {
     <div class="chips">${chips}</div>
   </div>`;
 
-  for (const [sec, items] of Object.entries(groups)) {
+  for (const [sec, rawItems] of Object.entries(groups)) {
+    const items = sortImportant(rawItems);
     html += `<div class="sec"><div class="sec-title">${esc(sec)}</div>`;
     for (const e of items) {
       const lv = store.getMastery(state, e.id);
@@ -124,14 +129,16 @@ function renderList() {
   if (!Object.keys(groups).length) html += '<p class="card">当前筛选没有题目</p>';
   v.innerHTML = html;
 
-  v.querySelector('#file-sel').addEventListener('change', (ev) => { filter = 'all'; selectFile(ev.target.value); });
+  v.querySelector('#file-sel').addEventListener('change', (ev) => { filter = 'all'; onlyImportant = false; selectFile(ev.target.value); });
   v.querySelectorAll('[data-filter]').forEach((b) => b.addEventListener('click', () => { filter = b.dataset.filter; renderView(); }));
+  const impBtn = v.querySelector('[data-f="important"]');
+  if (impBtn) impBtn.addEventListener('click', () => { onlyImportant = !onlyImportant; renderView(); });
   v.querySelectorAll('.q-row').forEach((b) => b.addEventListener('click', () => startPracticeAt(b.dataset.id)));
 }
 
 function startPracticeAt(id) {
   if (!curFile) return;
-  const items = curFile.entries.filter(drillable);
+  const items = sortImportant(currentDrillable());
   queue = items;
   queueFile = curFile.key;
   qIdx = queue.findIndex((e) => e.id === id);
@@ -242,6 +249,7 @@ document.querySelectorAll('.tab').forEach((t) =>
   await loadAll();
   selectFile(data[0]?.key);
 })();
+
 
 
 
