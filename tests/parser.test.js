@@ -1,7 +1,7 @@
 // tests/parser.test.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseBaguwen, parseStar } from '../js/parser.js';
+import { parseBaguwen, parseStar, parseKouyu } from '../js/parser.js';
 
 const fixture = `# 一、Java 基础
 
@@ -106,3 +106,62 @@ test('parseStar id 递增', () => {
   assert.equal(res[0].id, 'star:1');
   assert.equal(res[0].file, 'star');
 });
+
+const kouyuFixture = `# 01 · Java 基础与并发（口语版）
+
+> 每题 = 【结论】→ 展开 → 举例/取舍 →【追问备用】。
+
+---
+
+## 1. == 和 equals 的区别？
+
+**结论**：== 比地址，equals 看怎么重写。
+**展开**：== 对基本类型比的是值。
+**追问备用**：那重写 equals 要注意什么？—— 一定要重写 hashCode。
+
+---
+
+## 一、JVM
+
+### 1. JVM 内存区域？
+
+**结论**：堆 + 方法区是共享的。
+**展开**：堆放对象，是 GC 主战场。
+
+### 2. OOM 排查？【重点】
+
+**结论**：先看线程、再抓堆 dump。
+**结合项目**：我项目里盯无界缓存、线程池。`;
+
+test('parseKouyu 一级/二级题目都能解析', () => {
+  const res = parseKouyu(kouyuFixture, 'kouyu01', 'Java基础与并发');
+  assert.equal(res.length, 3);
+});
+
+test('parseKouyu 标签被转为分节', () => {
+  const res = parseKouyu(kouyuFixture, 'kouyu01', 'Java基础与并发');
+  assert.ok(res[0].answer.includes('结论：== 比地址'));
+  assert.ok(res[0].answer.includes('展开：== 对基本类型比的是值'));
+  assert.ok(res[0].answer.includes('追问备用：那重写 equals'));
+});
+
+test('parseKouyu 二级专题作 section', () => {
+  const res = parseKouyu(kouyuFixture, 'kouyu01', 'Java基础与并发');
+  assert.equal(res[1].section, '一、JVM');   // 二级专题下
+  assert.equal(res[1].question, 'JVM 内存区域？');
+});
+
+test('parseKouyu 【重点】标记', () => {
+  const res = parseKouyu(kouyuFixture, 'kouyu01', 'Java基础与并发');
+  assert.equal(res[2].important, true);
+  assert.ok(!res[2].question.includes('【重点】'));
+});
+
+test('parseKouyu id/file 正确', () => {
+  const res = parseKouyu(kouyuFixture, 'kouyu01', 'Java基础与并发');
+  assert.equal(res[0].section, 'Java基础与并发'); // 一级文件专题取 fallbackTitle\n  assert.equal(res[0].id, 'kouyu01:1');
+  assert.equal(res[0].file, 'kouyu01');
+  assert.equal(res[0].kind, 'qa');
+});
+
+

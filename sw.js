@@ -11,7 +11,7 @@ const SHELL = [
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];
-const CONTENT = ['content/baguwen.md', 'content/star.md'];
+const CONTENT = ['content/baguwen.md', 'content/star.md', 'content/kouyu01.md', 'content/kouyu02.md', 'content/kouyu03.md', 'content/kouyu04.md', 'content/kouyu05.md', 'content/kouyu06.md'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -55,3 +55,4 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+

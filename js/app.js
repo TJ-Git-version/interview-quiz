@@ -1,12 +1,22 @@
 // js/app.js —— 视图渲染与交互
-import { parseBaguwen, parseStar } from './parser.js';
+import { parseBaguwen, parseStar, parseKouyu } from './parser.js';
 import { createStore } from './storage.js';
 
 const store = createStore(window.localStorage);
 
+const KOUYU = [
+  ['kouyu01', '口语·Java基础与并发', 'Java基础与并发'],
+  ['kouyu02', '口语·JVM与Spring全家桶', 'JVM与Spring全家桶'],
+  ['kouyu03', '口语·MySQL', 'MySQL'],
+  ['kouyu04', '口语·Redis与消息', 'Redis与消息'],
+  ['kouyu05', '口语·网络与操作系统', '网络与操作系统'],
+  ['kouyu06', '口语·大模型RAG与Agent', '大模型RAG与Agent'],
+];
+
 const FILES = [
   { key: 'baguwen', title: '八股文高频问答', url: 'content/baguwen.md', parser: parseBaguwen },
   { key: 'star', title: '项目 STAR 深挖', url: 'content/star.md', parser: parseStar },
+  ...KOUYU.map(([key, title, sec]) => ({ key, title, url: 'content/' + key + '.md', parser: (t) => parseKouyu(t, key, sec) })),
 ];
 
 const FILTERS = { all: '全部', todo: '未练', weak: '薄弱', solid: '熟练' };
@@ -232,3 +242,4 @@ document.querySelectorAll('.tab').forEach((t) =>
   await loadAll();
   selectFile(data[0]?.key);
 })();
+

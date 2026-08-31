@@ -162,3 +162,63 @@ export function parseStar(md) {
 }
 
 
+
+// 面试口语版：##/### 题号（1. ）作为问题；##/### 非数字 作为专题；**标签**：内容 作为答案分段
+export function parseKouyu(md, fileKey, fallbackTitle) {
+  const lines = String(md).split(/\r?\n/);
+  const entries = [];
+  let index = 1;
+  let section = fallbackTitle || '';
+  let currentQ = null;
+
+  const heading = (line) => {
+    const m = line.match(/^(#{2,3})\s+(.+)$/);
+    return m ? { level: m[1].length, text: m[2].trim() } : null;
+  };
+  const isQuestion = (text) => /^\d+\.\s+/.test(text);
+
+  const flush = () => {
+    if (currentQ) { entries.push(currentQ); currentQ = null; }
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    const h = heading(line);
+    if (h) {
+      if (isQuestion(h.text)) {
+        flush();
+        const qText = stripMarkdown(h.text).replace(/^\d+\.\s*/, '').replace(/【重点[^】]*】/, '').trim();
+        currentQ = { section, question: qText, answer: '', important: /【重点/.test(h.text) };
+      } else {
+        flush();
+        section = stripMarkdown(h.text).trim() || section;
+      }
+      continue;
+    }
+    if (currentQ && line) {
+      const lbl = line.match(/^\*\*([^*]+)\*\*[:：]?\s*(.*)$/);
+      if (lbl) {
+        currentQ.answer += `${lbl[1]}：${lbl[2]}\n`;
+      } else {
+        currentQ.answer += line + '\n';
+      }
+    }
+  }
+  flush();
+
+  return entries.map((e) => {
+    const idx = index++;
+    return {
+      id: `${fileKey}:${idx}`,
+      file: fileKey,
+      section: e.section,
+      index: idx,
+      question: e.question,
+      answer: e.answer.trim(),
+      important: e.important,
+      kind: 'qa',
+    };
+  });
+}
+
+

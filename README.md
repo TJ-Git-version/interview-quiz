@@ -18,6 +18,19 @@ npm test          # 跑解析/存储单测
 npx serve .      # 本地静态服务器，浏览器打开
 ```
 
+## 题库内容
+
+| 文件 | 内容 |
+|---|---|
+| content/baguwen.md | 八股文高频问答（短答案/骨架） |
+| content/star.md | 项目 STAR 深挖（高频追问 / 通用追问 / 背诵参考） |
+| content/kouyu01.md | 口语版 · Java基础与并发 |
+| content/kouyu02.md | 口语版 · JVM与Spring全家桶 |
+| content/kouyu03.md | 口语版 · MySQL |
+| content/kouyu04.md | 口语版 · Redis与消息 |
+| content/kouyu05.md | 口语版 · 网络与操作系统 |
+| content/kouyu06.md | 口语版 · 大模型RAG与Agent |
+
 ## 更新题库内容
 
 1. 改 `content/baguwen.md` / `content/star.md`（或重新运行脱敏脚本）。
@@ -35,3 +48,4 @@ npx serve .      # 本地静态服务器，浏览器打开
 1. 推送本仓库到 GitHub。
 2. 仓库 Settings → Pages → Source 选 `main` 分支根目录。
 3. 待发布后访问 `https://<用户名>.github.io/interview-quiz/`。
+
