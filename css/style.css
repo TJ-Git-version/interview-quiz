@@ -1,0 +1,95 @@
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --primary: #2563eb;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --green: #10b981;
+  --gray: #d1d5db;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased;
+}
+.hidden { display: none !important; }
+.topbar {
+  position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--line);
+  padding: env(safe-area-inset-top) 0 0;
+}
+.tabs { display: flex; }
+.tab {
+  flex: 1; padding: 14px 0; background: none; border: none; font-size: 15px;
+  color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+}
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+main { padding: 14px; max-width: 640px; margin: 0 auto; }
+.foot {
+  text-align: center; color: var(--muted); font-size: 12px; padding: 16px 0 28px;
+}
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px; margin-bottom: 12px;
+}
+.select {
+  width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 15px; background: #fff; appearance: none;
+}
+.chips { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line);
+  background: #fff; color: var(--muted); font-size: 13px; cursor: pointer;
+}
+.chip.on { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+.sec { margin-top: 8px; }
+.sec-title { font-size: 14px; font-weight: 600; color: var(--muted); padding: 10px 4px 6px; }
+.q-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: #fff; border: none; border-bottom: 1px solid var(--line);
+  padding: 12px 6px; cursor: pointer; font-size: 15px; color: var(--ink);
+}
+.q-row:last-child { border-bottom: none; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.dot-gray { background: var(--gray); }
+.dot-red { background: var(--red); }
+.dot-yellow { background: var(--yellow); }
+.dot-green { background: var(--green); }
+.q-text { flex: 1; line-height: 1.45; }
+.progress { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.q-block { font-size: 18px; font-weight: 600; line-height: 1.5; }
+.badge {
+  display: inline-block; background: #fef3c7; color: #92400e; font-size: 12px;
+  padding: 2px 8px; border-radius: 6px; margin-bottom: 8px;
+}
+details { margin-top: 12px; }
+summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+textarea {
+  width: 100%; margin-top: 8px; padding: 10px; border: 1px solid var(--line);
+  border-radius: 8px; font-size: 15px; line-height: 1.5; resize: vertical;
+}
+.btn {
+  margin-top: 12px; padding: 11px 16px; border-radius: 8px; border: 1px solid var(--line);
+  background: #fff; font-size: 15px; cursor: pointer; color: var(--ink);
+}
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+#answer-box { margin-top: 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; line-height: 1.6; }
+.level-row { display: flex; gap: 8px; margin-top: 14px; }
+.level {
+  flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: #fff;
+  font-size: 14px; cursor: pointer;
+}
+.level[data-lv="1"]:hover { border-color: var(--red); color: var(--red); }
+.level[data-lv="2"]:hover { border-color: var(--yellow); color: #b45309; }
+.level[data-lv="3"]:hover { border-color: var(--green); color: var(--green); }
+.nav-row { display: flex; gap: 10px; margin-top: 14px; }
+.nav-row .btn.primary { flex: 1; }
+.stat-top { display: flex; text-align: center; }
+.stat-top > div { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.stat-top b { font-size: 26px; }
+.stat-top span { color: var(--muted); font-size: 13px; }
+.bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0; }
+.bar i { display: block; height: 100%; background: var(--primary); }
+.stat-nums { font-size: 13px; color: var(--muted); }

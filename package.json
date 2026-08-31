@@ -1,0 +1,10 @@
+{
+  "name": "interview-quiz",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "description": "本地题库刷题 PWA，托管于 GitHub Pages"
+}
