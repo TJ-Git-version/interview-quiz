@@ -5,18 +5,18 @@ import { createStore } from './storage.js';
 const store = createStore(window.localStorage);
 
 const KOUYU = [
-  ['kouyu01', '口语·Java基础与并发', 'Java基础与并发'],
-  ['kouyu02', '口语·JVM与Spring全家桶', 'JVM与Spring全家桶'],
-  ['kouyu03', '口语·MySQL', 'MySQL'],
-  ['kouyu04', '口语·Redis与消息', 'Redis与消息'],
-  ['kouyu05', '口语·网络与操作系统', '网络与操作系统'],
-  ['kouyu06', '口语·大模型RAG与Agent', '大模型RAG与Agent'],
+  ['kouyu06', '口语·大模型RAG与Agent', '大模型RAG与Agent', '最高'],
+  ['kouyu01', '口语·Java基础与并发', 'Java基础与并发', '高'],
+  ['kouyu03', '口语·MySQL', 'MySQL', '高'],
+  ['kouyu04', '口语·Redis与消息', 'Redis与消息', '高'],
+  ['kouyu02', '口语·JVM与Spring全家桶', 'JVM与Spring全家桶', '高'],
+  ['kouyu05', '口语·网络与操作系统', '网络与操作系统', '中'],
 ];
 
 const FILES = [
+  ...KOUYU.map(([key, title, sec, pri]) => ({ key, title, priority: pri, url: 'content/' + key + '.md', parser: (t) => parseKouyu(t, key, sec) })),
   { key: 'baguwen', title: '八股文高频问答', url: 'content/baguwen.md', parser: parseBaguwen },
   { key: 'star', title: '项目 STAR 深挖', url: 'content/star.md', parser: parseStar },
-  ...KOUYU.map(([key, title, sec]) => ({ key, title, url: 'content/' + key + '.md', parser: (t) => parseKouyu(t, key, sec) })),
 ];
 
 const FILTERS = { all: '全部', todo: '未练', weak: '薄弱', solid: '熟练' };
@@ -91,7 +91,7 @@ function renderList() {
   if (!curFile) { v.innerHTML = '<p class="card">未加载题库</p>'; return; }
 
   const fileSel = data
-    .map((f) => `<option value="${f.key}" ${f.key === curFile.key ? 'selected' : ''}>${esc(f.title)}</option>`)
+    .map((f) => `<option value="${f.key}" ${f.key === curFile.key ? 'selected' : ''}>${esc(f.title)}${f.priority ? '【' + esc(f.priority) + '】' : ''}</option>`)
     .join('');
   const chips = Object.entries(FILTERS)
     .map(([k, label]) => `<button class="chip ${filter === k ? 'on' : ''}" data-filter="${k}">${label}</button>`)
@@ -150,7 +150,7 @@ function renderPractice() {
 
   v.innerHTML = `
     <div class="card">
-      <div class="progress">第 ${qIdx + 1} / ${queue.length} 题 · ${esc(title)} · ${esc(e.section)}</div>
+      <div class="progress">第 ${qIdx + 1} / ${queue.length} 题 · ${esc(title)}${curFile.priority ? '【' + esc(curFile.priority) + '】' : ''} · ${esc(e.section)}</div>
       <div class="q-block">${e.important ? '<div class="badge">⭐ 重点</div>' : ''}${esc(e.question)}</div>
     </div>
     <div class="card">
@@ -242,4 +242,6 @@ document.querySelectorAll('.tab').forEach((t) =>
   await loadAll();
   selectFile(data[0]?.key);
 })();
+
+
 

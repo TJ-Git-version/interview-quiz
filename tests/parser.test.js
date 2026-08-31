@@ -165,3 +165,18 @@ test('parseKouyu id/file 正确', () => {
 });
 
 
+
+
+const kouyuPriority = `# 06 · 大模型（口语版）
+
+## 三、RAG（重点，降幻觉必答）
+
+### 1. 怎么降低幻觉？
+
+**结论**：给可靠上下文并约束。`;
+
+test('parseKouyu 落在「重点」专题下的题自动标 important', () => {
+  const res = parseKouyu(kouyuPriority, 'kouyu06', '大模型RAG与Agent');
+  assert.equal(res[0].important, true);
+  assert.equal(res[0].section, '三、RAG（重点，降幻觉必答）');
+});

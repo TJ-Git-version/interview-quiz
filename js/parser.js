@@ -188,7 +188,7 @@ export function parseKouyu(md, fileKey, fallbackTitle) {
       if (isQuestion(h.text)) {
         flush();
         const qText = stripMarkdown(h.text).replace(/^\d+\.\s*/, '').replace(/【重点[^】]*】/, '').trim();
-        currentQ = { section, question: qText, answer: '', important: /【重点/.test(h.text) };
+        currentQ = { section, question: qText, answer: '', important: (/【重点/.test(h.text) || /重点/.test(section)) };
       } else {
         flush();
         section = stripMarkdown(h.text).trim() || section;
@@ -220,5 +220,6 @@ export function parseKouyu(md, fileKey, fallbackTitle) {
     };
   });
 }
+
 
 
