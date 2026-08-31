@@ -48,6 +48,13 @@ function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+function renderMd(s) {
+  let html = esc(s);
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\n/g, '<br>');
+  return html;
+}
 
 async function loadAll() {
   for (const f of FILES) {
@@ -184,13 +191,13 @@ function renderPractice() {
   const box = v.querySelector('#answer-box');
   const content = v.querySelector('#answer-content');
   if (answerRevealed && reveal) {
-    content.innerHTML = esc(e.answer).replace(/\n/g, '<br>');
+    content.innerHTML = renderMd(e.answer);
     box.classList.remove('hidden');
     reveal.textContent = '隐藏答案';
   }
   if (reveal) reveal.addEventListener('click', () => {
     if (box.classList.contains('hidden')) {
-      content.innerHTML = esc(e.answer).replace(/\n/g, '<br>');
+      content.innerHTML = renderMd(e.answer);
       box.classList.remove('hidden');
       reveal.textContent = '隐藏答案';
       answerRevealed = true;

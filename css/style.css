@@ -93,3 +93,5 @@ textarea {
 .bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0; }
 .bar i { display: block; height: 100%; background: var(--primary); }
 .stat-nums { font-size: 13px; color: var(--muted); }
+#answer-content strong { font-weight: 600; }
+#answer-content code { background: #eef2ff; color: #3730a3; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
