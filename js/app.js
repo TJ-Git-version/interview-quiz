@@ -32,6 +32,7 @@ let state = store.load();
 let currentTab = 'list';
 let filter = 'all';
 let onlyImportant = false;
+let answerRevealed = false;
 let curFile = null;
 let queue = [];
 let qIdx = 0;
@@ -70,6 +71,7 @@ function selectFile(key) {
 
 function renewQueue() {
   if (!curFile) return;
+  answerRevealed = false;
   queue = sortImportant(currentDrillable());
   queueFile = curFile.key;
   const lastId = store.getLastId(state, curFile.key);
@@ -138,6 +140,7 @@ function renderList() {
 
 function startPracticeAt(id) {
   if (!curFile) return;
+  answerRevealed = false;
   const items = sortImportant(currentDrillable());
   queue = items;
   queueFile = curFile.key;
@@ -178,11 +181,24 @@ function renderPractice() {
     </div>`;
 
   const reveal = v.querySelector('#reveal');
-  if (reveal) reveal.addEventListener('click', () => {
-    const box = v.querySelector('#answer-box');
+  const box = v.querySelector('#answer-box');
+  const content = v.querySelector('#answer-content');
+  if (answerRevealed && reveal) {
+    content.innerHTML = esc(e.answer).replace(/\n/g, '<br>');
     box.classList.remove('hidden');
-    v.querySelector('#answer-content').innerHTML = esc(e.answer).replace(/\n/g, '<br>');
-    reveal.classList.add('hidden');
+    reveal.textContent = '隐藏答案';
+  }
+  if (reveal) reveal.addEventListener('click', () => {
+    if (box.classList.contains('hidden')) {
+      content.innerHTML = esc(e.answer).replace(/\n/g, '<br>');
+      box.classList.remove('hidden');
+      reveal.textContent = '隐藏答案';
+      answerRevealed = true;
+    } else {
+      box.classList.add('hidden');
+      reveal.textContent = '看答案';
+      answerRevealed = false;
+    }
   });
 
   v.querySelectorAll('.level').forEach((b) => b.addEventListener('click', () => {
@@ -192,10 +208,10 @@ function renderPractice() {
   }));
 
   v.querySelector('#prev').addEventListener('click', () => {
-    if (qIdx > 0) { qIdx--; renderPractice(); }
+    if (qIdx > 0) { qIdx--; answerRevealed = false; renderPractice(); }
   });
   v.querySelector('#next').addEventListener('click', () => {
-    if (qIdx < queue.length - 1) { qIdx++; renderPractice(); }
+    if (qIdx < queue.length - 1) { qIdx++; answerRevealed = false; renderPractice(); }
     else { alert('本组题目已做完 🎉'); }
   });
 }
