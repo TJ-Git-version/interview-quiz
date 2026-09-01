@@ -1,5 +1,5 @@
 // sw.js —— Service Worker
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL = [
   './',
   'index.html',
@@ -55,6 +55,7 @@ self.addEventListener('fetch', (e) => {
     })
   );
 });
+
 
 
 

@@ -5,7 +5,8 @@ const DEFAULT = {
   version: 1,
   files: {},   // { [fileKey]: { lastId } }
   mastery: {}, // { [entryId]: 0|1|2|3 }
-  history: [], // 作答记录，最多保留最近 5 次
+  history: [], // 作答记录（全局时间线，最多保留最近 5 次）
+  qHistory: {}, // 每题作答记录：{ [入口id]: [作答...] }，每题最多保留 5 次
 };
 
 function clone(o) {
@@ -23,6 +24,7 @@ export function createStore(backend) {
         files: { ...(parsed.files || {}) },
         mastery: { ...(parsed.mastery || {}) },
         history: Array.isArray(parsed.history) ? parsed.history : [],
+        qHistory: parsed.qHistory && typeof parsed.qHistory === 'object' ? parsed.qHistory : {},
       };
     } catch {
       return clone(DEFAULT);
@@ -45,8 +47,18 @@ export function createStore(backend) {
       if (!Array.isArray(state.history)) state.history = [];
       state.history.unshift(entry);
       if (state.history.length > 5) state.history.length = 5;
+      if (entry && entry.id) {
+        if (typeof state.qHistory !== 'object' || !state.qHistory) state.qHistory = {};
+        const list = Array.isArray(state.qHistory[entry.id]) ? state.qHistory[entry.id] : [];
+        list.unshift(entry);
+        if (list.length > 5) list.length = 5;
+        state.qHistory[entry.id] = list;
+      }
       write(state);
     },
-    clearHistory(state) { state.history = []; write(state); },
+    getQHistory(state, id) {
+      return state.qHistory && Array.isArray(state.qHistory[id]) ? state.qHistory[id] : [];
+    },
+    clearHistory(state) { state.history = []; state.qHistory = {}; write(state); },
   };
 }

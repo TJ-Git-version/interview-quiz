@@ -78,3 +78,29 @@ test('无 history 时默认空数组', () => {
   const store = createStore(b);
   assert.deepEqual(store.getHistory(store.load()), []);
 });
+
+test('qHistory 按题目分开记录且每题最多 5 次', () => {
+  const b = fakeBackend();
+  const store = createStore(b);
+  let s = store.load();
+  for (let i = 1; i <= 7; i++) store.addHistory(s, { id: 'A', question: 'A' + i });
+  for (let i = 1; i <= 2; i++) store.addHistory(s, { id: 'B', question: 'B' + i });
+  s = store.load();
+  const a = store.getQHistory(s, 'A');
+  const bb = store.getQHistory(s, 'B');
+  assert.equal(a.length, 5);
+  assert.equal(a[0].question, 'A7');
+  assert.equal(bb.length, 2);
+  assert.deepEqual(store.getQHistory(s, 'X'), []);
+});
+
+test('clearHistory 清空 qHistory', () => {
+  const b = fakeBackend();
+  const store = createStore(b);
+  let s = store.load();
+  store.addHistory(s, { id: 'A', question: 'A1' });
+  store.clearHistory(s);
+  s = store.load();
+  assert.deepEqual(store.getQHistory(s, 'A'), []);
+  assert.deepEqual(store.getHistory(s), []);
+});

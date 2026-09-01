@@ -166,6 +166,18 @@ function renderPractice() {
   const isOpen = e.kind === 'open';
   store.setLastId(state, curFile.key, e.id);
 
+  const prevList = store.getQHistory(state, e.id);
+  let prevHtml = '';
+  if (prevList.length) {
+    prevHtml = '<div class="card"><div class="sec-title">本道题 · 之前作答</div>';
+    for (const h of prevList) {
+      prevHtml += '<div class="hist"><div class="hist-time">' + esc(fmtTime(h.t)) + ' · ' + levelLabel(h.level) + '</div>'
+        + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '<div class="hist-meta">（无文字作答）</div>')
+        + '</div>';
+    }
+    prevHtml += '</div>';
+  }
+
   v.innerHTML = `
     <div class="card">
       <div class="progress">第 ${qIdx + 1} / ${queue.length} 题 · ${esc(title)}${curFile.priority ? '【' + esc(curFile.priority) + '】' : ''} · ${esc(e.section)}</div>
@@ -186,7 +198,7 @@ function renderPractice() {
         <button id="prev" class="btn">上一题</button>
         <button id="next" class="btn primary">下一题</button>
       </div>
-    </div>`;
+    </div>${prevHtml}`;
 
   const reveal = v.querySelector('#reveal');
   const box = v.querySelector('#answer-box');
@@ -215,7 +227,7 @@ function renderPractice() {
     const lv = Number(b.dataset.lv);
     state = store.load();
     store.setMastery(state, e.id, lv);
-    store.addHistory(state, { t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
+    store.addHistory(state, { id: e.id, t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
     renderPractice();
   }));
 
