@@ -101,13 +101,36 @@ textarea {
 .hist-self { margin-top: 8px; }
 .hist-self summary { cursor: pointer; color: var(--primary); font-size: 13px; }
 .hist-self div { margin-top: 6px; background: #f8fafc; border-left: 3px solid var(--primary); padding: 8px 10px; border-radius: 0 6px 6px 0; line-height: 1.6; font-size: 14px; }
-/* ---- 主题切换按钮 ---- */
-.theme-toggle {
-  position: absolute; right: 12px;
-  top: calc(env(safe-area-inset-top) + 10px);
-  background: none; border: 1px solid var(--line); border-radius: 8px;
-  padding: 6px 10px; cursor: pointer; color: var(--ink); font-size: 15px; line-height: 1;
+/* ---- 右下角设置按钮 ---- */
+.fab {
+  position: fixed; right: 18px; bottom: 22px; z-index: 40;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--primary); color: #fff; border: none;
+  font-size: 22px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  display: flex; align-items: center; justify-content: center;
 }
+.fab:active { transform: scale(.95); }
+
+/* ---- 设置弹窗（底部 sheet）---- */
+.mask {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,.45);
+}
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: var(--card); color: var(--ink);
+  border-radius: 16px 16px 0 0; padding: 18px 18px calc(env(safe-area-inset-bottom) + 18px);
+  max-width: 640px; margin: 0 auto; box-shadow: 0 -6px 24px rgba(0,0,0,.25);
+}
+.sheet-title { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+.sheet-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.sheet-options { display: flex; gap: 10px; margin-bottom: 16px; }
+.theme-opt {
+  flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--card); color: var(--ink); font-size: 15px; cursor: pointer;
+}
+.theme-opt.on { border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,.08); }
+:root[data-theme="dark"] .theme-opt.on { background: rgba(96,165,250,.15); color: var(--primary); }
 
 /* ---- 深色主题 ---- */
 :root[data-theme="dark"] {

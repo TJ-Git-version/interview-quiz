@@ -354,10 +354,17 @@ document.querySelectorAll('.tab').forEach((t) =>
 
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  const btn = document.querySelector('#theme-toggle');
-  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#111827');
+  document.querySelectorAll('.theme-opt').forEach((b) => b.classList.toggle('on', b.dataset.theme === theme));
+}
+function openSettings() {
+  document.querySelector('#settings-mask')?.classList.remove('hidden');
+  document.querySelector('#settings-sheet')?.classList.remove('hidden');
+}
+function closeSettings() {
+  document.querySelector('#settings-mask')?.classList.add('hidden');
+  document.querySelector('#settings-sheet')?.classList.add('hidden');
 }
 function initTheme() {
   let theme = 'light';
@@ -367,13 +374,16 @@ function initTheme() {
 
 (async () => {
   initTheme();
-  const themeBtn = document.querySelector('#theme-toggle');
-  if (themeBtn) themeBtn.addEventListener('click', () => {
-    const cur = document.documentElement.dataset.theme || 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    try { localStorage.setItem('interview-quiz:theme', next); } catch {}
-  });
+  const settingsBtn = document.querySelector('#settings-btn');
+  if (settingsBtn) settingsBtn.addEventListener('click', openSettings);
+  const closeBtn = document.querySelector('#close-settings');
+  if (closeBtn) closeBtn.addEventListener('click', closeSettings);
+  const mask = document.querySelector('#settings-mask');
+  if (mask) mask.addEventListener('click', closeSettings);
+  document.querySelectorAll('.theme-opt').forEach((b) => b.addEventListener('click', () => {
+    applyTheme(b.dataset.theme);
+    try { localStorage.setItem('interview-quiz:theme', b.dataset.theme); } catch {}
+  }));
   await loadAll();
   selectFile(data[0]?.key);
 })();
