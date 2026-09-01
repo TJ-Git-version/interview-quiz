@@ -136,3 +136,6 @@ textarea {
 :root[data-theme="dark"] #answer-content code { background: rgba(96,165,250,.18); color: #bfdbfe; }
 :root[data-theme="dark"] .badge { background: rgba(251,191,36,.18); color: #fcd34d; }
 :root[data-theme="dark"] .hist-self div { background: rgba(96,165,250,.12); border-left-color: var(--primary); }
+.hist-time { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hist-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 6px; border-radius: 6px; }
+.hist-del:hover { color: var(--red); background: rgba(239,68,68,.1); }

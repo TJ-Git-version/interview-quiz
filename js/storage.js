@@ -60,5 +60,16 @@ export function createStore(backend) {
       return state.qHistory && Array.isArray(state.qHistory[id]) ? state.qHistory[id] : [];
     },
     clearHistory(state) { state.history = []; state.qHistory = {}; write(state); },
+    removeHistoryEntry(state, uid) {
+      if (uid == null) return;
+      if (Array.isArray(state.history)) state.history = state.history.filter((e) => e.uid !== uid);
+      if (state.qHistory) {
+        for (const k of Object.keys(state.qHistory)) {
+          state.qHistory[k] = state.qHistory[k].filter((e) => e.uid !== uid);
+          if (!state.qHistory[k].length) delete state.qHistory[k];
+        }
+      }
+      write(state);
+    },
   };
 }

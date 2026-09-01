@@ -171,7 +171,7 @@ function renderPractice() {
   if (prevList.length) {
     prevHtml = '<div class="card"><div class="sec-title">本道题 · 之前作答</div>';
     for (const h of prevList) {
-      prevHtml += '<div class="hist"><div class="hist-time">' + esc(fmtTime(h.t)) + ' · ' + levelLabel(h.level) + '</div>'
+      prevHtml += '<div class="hist"><div class="hist-time"><span>' + esc(fmtTime(h.t)) + ' · ' + levelLabel(h.level) + '</span>' + (h.uid ? '<button class="hist-del" data-uid="' + esc(h.uid) + '">✕</button>' : '') + '</div>'
         + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '<div class="hist-meta">（无文字作答）</div>')
         + '</div>';
     }
@@ -227,7 +227,8 @@ function renderPractice() {
     const lv = Number(b.dataset.lv);
     state = store.load();
     store.setMastery(state, e.id, lv);
-    store.addHistory(state, { id: e.id, t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
+    const uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    store.addHistory(state, { id: e.id, uid, t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
     renderPractice();
   }));
 
@@ -238,6 +239,11 @@ function renderPractice() {
     if (qIdx < queue.length - 1) { qIdx++; answerRevealed = false; renderPractice(); }
     else { alert('本组题目已做完 🎉'); }
   });
+  v.querySelectorAll('.hist-del').forEach((bb) => bb.addEventListener('click', () => {
+    state = store.load();
+    store.removeHistoryEntry(state, bb.dataset.uid);
+    renderPractice();
+  }));
 }
 
 const LEVEL_LABELS = { 1: '生疏', 2: '会一点', 3: '熟练' };
@@ -265,7 +271,7 @@ function renderHistory() {
   let html = '<div class="card"><div class="sec-title">最近 5 次作答</div><button id="clear-hist" class="btn">清空记录</button></div>';
   for (const h of history) {
     html += '<div class="card hist">'
-      + '<div class="hist-time">' + esc(fmtTime(h.t)) + '</div>'
+      + '<div class="hist-time"><span>' + esc(fmtTime(h.t)) + '</span>' + (h.uid ? '<button class="hist-del" data-uid="' + esc(h.uid) + '">✕</button>' : '') + '</div>'
       + '<div class="hist-q">' + esc(h.question) + '</div>'
       + '<div class="hist-meta">' + esc(h.title || '') + ' · ' + esc(h.section || '') + ' · 掌握：' + levelLabel(h.level) + '</div>'
       + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '')
@@ -280,6 +286,11 @@ function renderHistory() {
       renderHistory();
     }
   });
+  v.querySelectorAll('.hist-del').forEach((b) => b.addEventListener('click', () => {
+    state = store.load();
+    store.removeHistoryEntry(state, b.dataset.uid);
+    renderHistory();
+  }));
 }
 
 function renderStats() {

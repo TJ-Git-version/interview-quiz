@@ -104,3 +104,20 @@ test('clearHistory 清空 qHistory', () => {
   assert.deepEqual(store.getQHistory(s, 'A'), []);
   assert.deepEqual(store.getHistory(s), []);
 });
+
+test('removeHistoryEntry 按 uid 删除单条（历史与题目历史都删）', () => {
+  const b = fakeBackend();
+  const store = createStore(b);
+  let s = store.load();
+  store.addHistory(s, { id: 'A', uid: 'u1', question: 'A1' });
+  store.addHistory(s, { id: 'A', uid: 'u2', question: 'A2' });
+  store.addHistory(s, { id: 'B', uid: 'u3', question: 'B1' });
+  store.removeHistoryEntry(s, 'u1');
+  s = store.load();
+  assert.equal(store.getHistory(s).length, 2);
+  assert.ok(!store.getHistory(s).some((e) => e.uid === 'u1'));
+  const a = store.getQHistory(s, 'A');
+  assert.equal(a.length, 1);
+  assert.equal(a[0].uid, 'u2');
+  assert.equal(store.getQHistory(s, 'B').length, 1);
+});
