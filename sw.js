@@ -1,5 +1,5 @@
 // sw.js —— Service Worker
-const VERSION = 'v6';
+const VERSION = 'v7';
 const SHELL = [
   './',
   'index.html',

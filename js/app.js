@@ -171,7 +171,7 @@ function renderPractice() {
   if (prevList.length) {
     prevHtml = '<div class="card"><div class="sec-title">本道题 · 之前作答</div>';
     for (const h of prevList) {
-      prevHtml += '<div class="hist"><div class="hist-time"><span>' + esc(fmtTime(h.t)) + ' · ' + levelLabel(h.level) + '</span>' + (h.uid ? '<button class="hist-del" data-uid="' + esc(h.uid) + '">✕</button>' : '') + '</div>'
+      prevHtml += '<div class="hist" data-uid="' + esc(h.uid || '') + '"><div class="hist-time"><span>' + esc(fmtTime(h.t)) + ' · ' + levelLabel(h.level) + '</span></div>'
         + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '<div class="hist-meta">（无文字作答）</div>')
         + '</div>';
     }
@@ -239,11 +239,7 @@ function renderPractice() {
     if (qIdx < queue.length - 1) { qIdx++; answerRevealed = false; renderPractice(); }
     else { alert('本组题目已做完 🎉'); }
   });
-  v.querySelectorAll('.hist-del').forEach((bb) => bb.addEventListener('click', () => {
-    state = store.load();
-    store.removeHistoryEntry(state, bb.dataset.uid);
-    renderPractice();
-  }));
+  v.querySelectorAll('.hist[data-uid]').forEach((elm) => attachLongPress(elm, elm.dataset.uid));
 }
 
 const LEVEL_LABELS = { 1: '生疏', 2: '会一点', 3: '熟练' };
@@ -260,6 +256,28 @@ function fmtTime(ms) {
   return y + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hm;
 }
 
+function attachLongPress(elm, uid) {
+  if (!uid) return;
+  let timer = null;
+  const start = (e) => {
+    if (e.button != null && e.button !== 0) return;
+    timer = setTimeout(() => {
+      timer = null;
+      if (confirm('删除这条作答记录？')) {
+        state = store.load();
+        store.removeHistoryEntry(state, uid);
+        if (currentTab === 'history') renderHistory();
+        else renderPractice();
+      }
+    }, 600);
+  };
+  const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  elm.addEventListener('pointerdown', start);
+  elm.addEventListener('pointerup', cancel);
+  elm.addEventListener('pointerleave', cancel);
+  elm.addEventListener('pointercancel', cancel);
+}
+
 function renderHistory() {
   const v = document.querySelector('#view-history');
   state = store.load();
@@ -270,8 +288,8 @@ function renderHistory() {
   }
   let html = '<div class="card"><div class="sec-title">最近 5 次作答</div><button id="clear-hist" class="btn">清空记录</button></div>';
   for (const h of history) {
-    html += '<div class="card hist">'
-      + '<div class="hist-time"><span>' + esc(fmtTime(h.t)) + '</span>' + (h.uid ? '<button class="hist-del" data-uid="' + esc(h.uid) + '">✕</button>' : '') + '</div>'
+    html += '<div class="card hist" data-uid="' + esc(h.uid || '') + '">'
+      + '<div class="hist-time"><span>' + esc(fmtTime(h.t)) + '</span></div>'
       + '<div class="hist-q">' + esc(h.question) + '</div>'
       + '<div class="hist-meta">' + esc(h.title || '') + ' · ' + esc(h.section || '') + ' · 掌握：' + levelLabel(h.level) + '</div>'
       + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '')
@@ -286,11 +304,7 @@ function renderHistory() {
       renderHistory();
     }
   });
-  v.querySelectorAll('.hist-del').forEach((b) => b.addEventListener('click', () => {
-    state = store.load();
-    store.removeHistoryEntry(state, b.dataset.uid);
-    renderHistory();
-  }));
+  v.querySelectorAll('.hist[data-uid]').forEach((elm) => attachLongPress(elm, elm.dataset.uid));
 }
 
 function renderStats() {
