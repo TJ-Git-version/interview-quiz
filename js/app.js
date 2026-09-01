@@ -327,7 +327,28 @@ document.querySelectorAll('.tab').forEach((t) =>
   })
 );
 
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const btn = document.querySelector('#theme-toggle');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0f172a' : '#111827');
+}
+function initTheme() {
+  let theme = 'light';
+  try { theme = localStorage.getItem('interview-quiz:theme') || 'light'; } catch {}
+  applyTheme(theme);
+}
+
 (async () => {
+  initTheme();
+  const themeBtn = document.querySelector('#theme-toggle');
+  if (themeBtn) themeBtn.addEventListener('click', () => {
+    const cur = document.documentElement.dataset.theme || 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem('interview-quiz:theme', next); } catch {}
+  });
   await loadAll();
   selectFile(data[0]?.key);
 })();

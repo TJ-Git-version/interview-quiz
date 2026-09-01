@@ -101,3 +101,38 @@ textarea {
 .hist-self { margin-top: 8px; }
 .hist-self summary { cursor: pointer; color: var(--primary); font-size: 13px; }
 .hist-self div { margin-top: 6px; background: #f8fafc; border-left: 3px solid var(--primary); padding: 8px 10px; border-radius: 0 6px 6px 0; line-height: 1.6; font-size: 14px; }
+/* ---- 主题切换按钮 ---- */
+.theme-toggle {
+  position: absolute; right: 12px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  background: none; border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 10px; cursor: pointer; color: var(--ink); font-size: 15px; line-height: 1;
+}
+
+/* ---- 深色主题 ---- */
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --ink: #e5e7eb;
+  --muted: #9ca3af;
+  --line: #334155;
+  --primary: #60a5fa;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --green: #34d399;
+  --gray: #475569;
+}
+:root[data-theme="dark"] .topbar { background: var(--card); border-bottom-color: var(--line); }
+:root[data-theme="dark"] .tab.active { color: var(--primary); }
+:root[data-theme="dark"] .select { background: var(--card); color: var(--ink); }
+:root[data-theme="dark"] .chip { background: var(--card); color: var(--muted); }
+:root[data-theme="dark"] .chip.on { background: rgba(96,165,250,.16); color: var(--primary); border-color: var(--primary); }
+:root[data-theme="dark"] .q-row { background: var(--card); color: var(--ink); }
+:root[data-theme="dark"] .btn { background: var(--card); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] .btn.primary { background: var(--primary); border-color: var(--primary); color: #0f172a; }
+:root[data-theme="dark"] .level { background: var(--card); color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] textarea { background: #0f172a; color: var(--ink); border-color: var(--line); }
+:root[data-theme="dark"] #answer-box { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.35); }
+:root[data-theme="dark"] #answer-content code { background: rgba(96,165,250,.18); color: #bfdbfe; }
+:root[data-theme="dark"] .badge { background: rgba(251,191,36,.18); color: #fcd34d; }
+:root[data-theme="dark"] .hist-self div { background: rgba(96,165,250,.12); border-left-color: var(--primary); }
