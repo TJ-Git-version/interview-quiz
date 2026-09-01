@@ -49,3 +49,32 @@ test('损坏数据回退默认', () => {
   assert.equal(s.version, 1);
   assert.deepEqual(s.mastery, {});
 });
+
+test('addHistory 记录且只保留最近 5 次', () => {
+  const b = fakeBackend();
+  const store = createStore(b);
+  let s = store.load();
+  for (let i = 1; i <= 7; i++) store.addHistory(s, { question: 'Q' + i });
+  s = store.load();
+  const h = store.getHistory(s);
+  assert.equal(h.length, 5);
+  assert.equal(h[0].question, 'Q7');      // 最新在前
+  assert.equal(h[4].question, 'Q3');      // 最旧的被挤掉
+});
+
+test('clearHistory 清空', () => {
+  const b = fakeBackend();
+  const store = createStore(b);
+  let s = store.load();
+  store.addHistory(s, { question: 'A' });
+  store.clearHistory(s);
+  s = store.load();
+  assert.deepEqual(store.getHistory(s), []);
+});
+
+test('无 history 时默认空数组', () => {
+  const b = fakeBackend();
+  b.setItem('interview-quiz:v1', JSON.stringify({ version: 1, files: {}, mastery: {} }));
+  const store = createStore(b);
+  assert.deepEqual(store.getHistory(store.load()), []);
+});

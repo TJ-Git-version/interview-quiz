@@ -5,6 +5,7 @@ const DEFAULT = {
   version: 1,
   files: {},   // { [fileKey]: { lastId } }
   mastery: {}, // { [entryId]: 0|1|2|3 }
+  history: [], // 作答记录，最多保留最近 5 次
 };
 
 function clone(o) {
@@ -21,6 +22,7 @@ export function createStore(backend) {
         version: parsed.version ?? DEFAULT.version,
         files: { ...(parsed.files || {}) },
         mastery: { ...(parsed.mastery || {}) },
+        history: Array.isArray(parsed.history) ? parsed.history : [],
       };
     } catch {
       return clone(DEFAULT);
@@ -38,5 +40,13 @@ export function createStore(backend) {
     setMastery(state, id, level) { state.mastery[id] = level; write(state); },
     getLastId(state, fileKey) { return state.files[fileKey]?.lastId ?? null; },
     setLastId(state, fileKey, id) { state.files[fileKey] = { lastId: id }; write(state); },
+    getHistory(state) { return Array.isArray(state.history) ? state.history : []; },
+    addHistory(state, entry) {
+      if (!Array.isArray(state.history)) state.history = [];
+      state.history.unshift(entry);
+      if (state.history.length > 5) state.history.length = 5;
+      write(state);
+    },
+    clearHistory(state) { state.history = []; write(state); },
   };
 }

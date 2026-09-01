@@ -95,6 +95,7 @@ function renderView() {
   renderTabs();
   if (currentTab === 'list') renderList();
   else if (currentTab === 'practice') renderPractice();
+  else if (currentTab === 'history') renderHistory();
   else renderStats();
 }
 
@@ -209,8 +210,12 @@ function renderPractice() {
   });
 
   v.querySelectorAll('.level').forEach((b) => b.addEventListener('click', () => {
+    const selfBox = v.querySelector('#my-answer');
+    const self = selfBox ? selfBox.value.trim() : '';
+    const lv = Number(b.dataset.lv);
     state = store.load();
-    store.setMastery(state, e.id, Number(b.dataset.lv));
+    store.setMastery(state, e.id, lv);
+    store.addHistory(state, { t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
     renderPractice();
   }));
 
@@ -220,6 +225,48 @@ function renderPractice() {
   v.querySelector('#next').addEventListener('click', () => {
     if (qIdx < queue.length - 1) { qIdx++; answerRevealed = false; renderPractice(); }
     else { alert('本组题目已做完 🎉'); }
+  });
+}
+
+const LEVEL_LABELS = { 1: '生疏', 2: '会一点', 3: '熟练' };
+const levelLabel = (lv) => LEVEL_LABELS[lv] || '未练';
+
+function fmtTime(ms) {
+  const d = new Date(ms);
+  const pad = (n) => String(n).padStart(2, '0');
+  const today = new Date();
+  const isToday = d.toDateString() === today.toDateString();
+  const hm = pad(d.getHours()) + ':' + pad(d.getMinutes());
+  if (isToday) return '今天 ' + hm;
+  const y = d.getFullYear() === today.getFullYear() ? '' : d.getFullYear() + '-';
+  return y + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hm;
+}
+
+function renderHistory() {
+  const v = document.querySelector('#view-history');
+  state = store.load();
+  const history = store.getHistory(state);
+  if (!history.length) {
+    v.innerHTML = '<p class="card">还没有作答记录。完成一道题（点「生疏 / 会一点 / 熟练」）后，这里会记录最近 5 次。</p>';
+    return;
+  }
+  let html = '<div class="card"><div class="sec-title">最近 5 次作答</div><button id="clear-hist" class="btn">清空记录</button></div>';
+  for (const h of history) {
+    html += '<div class="card hist">'
+      + '<div class="hist-time">' + esc(fmtTime(h.t)) + '</div>'
+      + '<div class="hist-q">' + esc(h.question) + '</div>'
+      + '<div class="hist-meta">' + esc(h.title || '') + ' · ' + esc(h.section || '') + ' · 掌握：' + levelLabel(h.level) + '</div>'
+      + (h.self ? '<details class="hist-self"><summary>我的回答</summary><div>' + esc(h.self).replace(/\n/g, '<br>') + '</div></details>' : '')
+      + '</div>';
+  }
+  v.innerHTML = html;
+  const clear = v.querySelector('#clear-hist');
+  if (clear) clear.addEventListener('click', () => {
+    if (confirm('确定清空作答历史？')) {
+      state = store.load();
+      store.clearHistory(state);
+      renderHistory();
+    }
   });
 }
 
