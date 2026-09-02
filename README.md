@@ -31,6 +31,12 @@ npx serve .      # 本地静态服务器，浏览器打开
 | content/kouyu05.md | 口语版 · 网络与操作系统 |
 | content/kouyu06.md | 口语版 · 大模型RAG与Agent |
 
+## 云同步（可选）
+
+- 在 App 右下角「⚙️ 设置」里填一个 **GitHub 私有仓库**（如 TJ-Git-version/interview-quiz-data）和一个 **fine-grained 令牌**（Contents 读写权限，仅限该仓库）。
+- 掌握度 / 进度 / 历史会同步到该仓库的 data.json，手机与电脑可共用；主题仍是本机偏好。
+- 令牌仅保存在浏览器本地，用于访问你自己的私有仓库。
+
 ## 更新题库内容
 
 1. 改 `content/baguwen.md` / `content/star.md`（或重新运行脱敏脚本）。
@@ -48,4 +54,5 @@ npx serve .      # 本地静态服务器，浏览器打开
 1. 推送本仓库到 GitHub。
 2. 仓库 Settings → Pages → Source 选 `main` 分支根目录。
 3. 待发布后访问 `https://<用户名>.github.io/interview-quiz/`。
+
 

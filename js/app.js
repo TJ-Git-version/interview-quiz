@@ -1,6 +1,7 @@
 // js/app.js —— 视图渲染与交互
 import { parseBaguwen, parseStar, parseKouyu } from './parser.js';
 import { createStore } from './storage.js';
+import { createSync } from './sync.js';
 
 const store = createStore(window.localStorage);
 
@@ -37,6 +38,8 @@ let curFile = null;
 let queue = [];
 let qIdx = 0;
 let queueFile = null;
+let syncCfg = loadSyncCfg();
+let syncTimer = null;
 
 const $ = (s) => document.querySelector(s);
 const drillable = (e) => e.kind === 'qa' || e.kind === 'open';
@@ -54,6 +57,63 @@ function renderMd(s) {
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\n/g, '<br>');
   return html;
+}
+
+function loadSyncCfg() {
+  try { return JSON.parse(localStorage.getItem('interview-quiz:sync') || '{}'); } catch { return {}; }
+}
+function saveSyncCfg(cfg) {
+  try { localStorage.setItem('interview-quiz:sync', JSON.stringify(cfg)); } catch {}
+}
+function hasData(r) {
+  return !!r && (Object.keys(r.mastery || {}).length > 0 || (r.history || []).length > 0 || Object.keys(r.qHistory || {}).length > 0 || Object.keys(r.files || {}).length > 0);
+}
+function sanitizeRemote(r) {
+  const o = r && typeof r === 'object' ? r : {};
+  return {
+    version: o.version || 1,
+    files: o.files && typeof o.files === 'object' ? o.files : {},
+    mastery: o.mastery && typeof o.mastery === 'object' ? o.mastery : {},
+    history: Array.isArray(o.history) ? o.history : [],
+    qHistory: o.qHistory && typeof o.qHistory === 'object' ? o.qHistory : {},
+  };
+}
+function setSyncStatus(msg) {
+  const el = document.querySelector('#sync-status');
+  if (el) el.textContent = msg;
+}
+async function pushCloud() {
+  if (!syncCfg.repo || !syncCfg.token) return;
+  try {
+    const sync = createSync(syncCfg);
+    await sync.write(state);
+    setSyncStatus('已同步 ' + new Date().toLocaleTimeString());
+  } catch (e) {
+    setSyncStatus('同步失败：' + e.message);
+  }
+}
+async function pullCloud() {
+  if (!syncCfg.repo || !syncCfg.token) return;
+  try {
+    const sync = createSync(syncCfg);
+    const remote = await sync.read();
+    if (remote && hasData(remote)) {
+      state = sanitizeRemote(remote);
+      store.save(state);
+      state = store.load();
+      setSyncStatus('已读取云端数据');
+    } else {
+      await sync.write(state);
+      setSyncStatus('已上传到云端');
+    }
+  } catch (e) {
+    setSyncStatus('读取失败：' + e.message);
+  }
+}
+function scheduleSync() {
+  if (!syncCfg.repo || !syncCfg.token) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { pushCloud(); }, 1500);
 }
 
 async function loadAll() {
@@ -165,6 +225,7 @@ function renderPractice() {
   const title = FILES.find((f) => f.key === curFile.key)?.title || curFile.title;
   const isOpen = e.kind === 'open';
   store.setLastId(state, curFile.key, e.id);
+  scheduleSync();
 
   const prevList = store.getQHistory(state, e.id);
   let prevHtml = '';
@@ -229,6 +290,7 @@ function renderPractice() {
     store.setMastery(state, e.id, lv);
     const uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     store.addHistory(state, { id: e.id, uid, t: Date.now(), file: curFile.key, title, section: e.section, question: e.question, level: lv, self });
+    scheduleSync();
     renderPractice();
   }));
 
@@ -266,6 +328,7 @@ function attachLongPress(elm, uid) {
       if (confirm('删除这条作答记录？')) {
         state = store.load();
         store.removeHistoryEntry(state, uid);
+        scheduleSync();
         if (currentTab === 'history') renderHistory();
         else renderPractice();
       }
@@ -301,6 +364,7 @@ function renderHistory() {
     if (confirm('确定清空作答历史？')) {
       state = store.load();
       store.clearHistory(state);
+      scheduleSync();
       renderHistory();
     }
   });
@@ -384,8 +448,28 @@ function initTheme() {
     applyTheme(b.dataset.theme);
     try { localStorage.setItem('interview-quiz:theme', b.dataset.theme); } catch {}
   }));
+
+  const repoInput = document.querySelector('#sync-repo');
+  const tokenInput = document.querySelector('#sync-token');
+  if (repoInput) repoInput.value = syncCfg.repo || '';
+  if (tokenInput) tokenInput.value = syncCfg.token || '';
+  const syncSave = document.querySelector('#sync-save');
+  if (syncSave) syncSave.addEventListener('click', () => {
+    syncCfg = { repo: (repoInput.value || '').trim(), token: (tokenInput.value || '').trim() };
+    saveSyncCfg(syncCfg);
+    setSyncStatus('配置已保存');
+    pullCloud();
+  });
+  const syncNow = document.querySelector('#sync-now');
+  if (syncNow) syncNow.addEventListener('click', async () => {
+    setSyncStatus('正在同步…');
+    await pullCloud();
+    await pushCloud();
+  });
+
   await loadAll();
   selectFile(data[0]?.key);
+  if (syncCfg.repo && syncCfg.token) pullCloud().then(() => renderView());
 })();
 
 

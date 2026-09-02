@@ -40,6 +40,14 @@
       <button class="theme-opt" data-theme="light">☀️ 浅色</button>
       <button class="theme-opt" data-theme="dark">🌙 深色</button>
     </div>
+    <div class="sheet-label">云同步（GitHub）</div>
+    <input id="sync-repo" class="input" placeholder="仓库 owner/repo，如 TJ-Git-version/interview-quiz-data" />
+    <input id="sync-token" class="input" type="password" placeholder="GitHub 令牌（建议 fine-grained，仅此仓库 contents 权限）" />
+    <div class="sheet-actions">
+      <button id="sync-save" class="btn primary">保存</button>
+      <button id="sync-now" class="btn">立即同步</button>
+    </div>
+    <div id="sync-status" class="sync-status"></div>
     <button id="close-settings" class="btn primary">完成</button>
   </div>
   <script type="module" src="js/app.js"></script>

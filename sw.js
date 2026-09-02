@@ -1,11 +1,12 @@
 // sw.js —— Service Worker
-const VERSION = 'v8';
+const VERSION = 'v9';
 const SHELL = [
   './',
   'index.html',
   'css/style.css',
   'js/parser.js',
   'js/storage.js',
+  'js/sync.js',
   'js/app.js',
   'manifest.json',
   'icons/icon-192.png',
